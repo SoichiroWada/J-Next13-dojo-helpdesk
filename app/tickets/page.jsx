@@ -9,7 +9,7 @@ export default function Tickets() {
           <p><small>Currently open tickets.</small></p>
         </div>
       </nav>
-      <TicketList />
+      <TicketList></TicketList>
     </main>
   )
 }
