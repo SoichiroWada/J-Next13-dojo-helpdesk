@@ -1,5 +1,5 @@
 async function getTicket(id) {
-  const res = await fetch("http://localhost:4000/tickets" + id, {
+  const res = await fetch(`http://localhost:4000/tickets/${id}`, {
     next: {
       revalidate: 60, // use 0 to opt out of using cache
     },
