@@ -20,6 +20,28 @@
       "body": "SSS Lorem ipsum Triforce sit amet, Linkus Hyruleus tempus Ganondorf. Nunc ocarina sagittis quis Majoras Mask. Nulla in metus arcu. Suspendisse potenti. In vel mauris varius, consectetur Zora ipsum eget, Master Sword porttitor urna. Fusce elementum urna elit, eget eleifend velit consectetur eget. Integer vel lobortis ipsum, vitae auctor Ocarina of Time. Donec sed urna dapibus, interdum magna a, eleifend magna. Curabitur tincidunt enim a neque volutpat. Phasellus auctor magna vel nunc pretium, ut volutpat justo tristique. Pellentesque cursus convallis mauris, in tempus enim tincidunt vitae.",
       "priority": "high",
       "user_email": "peach@netninja.dev"
+    },
+    {
+      "title": "my new ticket1",
+      "body": "Ahwooo",
+      "priority": "high",
+      "user_email": "mario@netninja.dev",
+      "id": "axHE-j4hZ7s"
+    },
+    {
+      "title": "another NEW Ticket",
+      "body": "aWAWAgooo",
+      "priority": "medium",
+      "user_email": "mario@netninja.dev",
+      "id": "xUtdvlGwKM4"
+    },
+    {
+      "title": "buntara buntara buntara yeah",
+      "body": "In JavaScript, code executes sequentially from top to bottom. Because the fetch statement is written directly inside the main body of the handleSubmit function, the browser will naturally move from creating the newTicket object straight into executing the fetch request.",
+      "priority": "high",
+      "user_email": "mario@netninja.dev",
+      "id": "ZBoUo6SXcIc"
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
