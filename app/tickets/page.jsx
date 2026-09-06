@@ -1,3 +1,4 @@
+import { loadBindings } from "next/dist/build/swc";
 import TicketList from "./TicketList";
 
 export default function Tickets() {
@@ -6,10 +7,14 @@ export default function Tickets() {
       <nav>
         <div>
           <h2>Tickets</h2>
-          <p><small>Currently open tickets.</small></p>
+          <p>
+            <small>Currently open tickets.</small>
+          </p>
         </div>
       </nav>
-      <TicketList></TicketList>
+      <Suspense fallback={<Loading></Loading>}>
+        <TicketList></TicketList>
+      </Suspense>
     </main>
-  )
+  );
 }
