@@ -1,11 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import DeleteButton from "./DeleteButton";
 
 export const dynamicParams = true; // default val = true
 
 export async function generateStaticParams() {
   const res = await fetch("http://192.168.1.68:4000/tickets");
-
   const tickets = await res.json();
 
   return tickets.map((ticket) => ({
@@ -44,9 +43,7 @@ export default async function TicketDetails({ params }) {
           {ticket.priority} priority
         </div>
       </div>
-      <div>
-        <button className="btn-primary">Delete</button>
-      </div>
+      <DeleteButton id={params.id}></DeleteButton>
     </main>
   );
 }
