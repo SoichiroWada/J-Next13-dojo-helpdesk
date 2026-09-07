@@ -18,11 +18,9 @@ async function getTicket(id) {
       revalidate: 60,
     },
   });
-
   if (!res.ok) {
     notFound();
   }
-
   return res.json();
 }
 
