@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export const dynamicParams = true; // default val = true
@@ -13,7 +14,6 @@ export async function generateStaticParams() {
 }
 
 async function getTicket(id) {
-
   const res = await fetch(`http://192.168.1.68:4000/tickets/${id}`, {
     next: {
       revalidate: 60,
@@ -28,7 +28,7 @@ async function getTicket(id) {
 }
 
 export default async function TicketDetails({ params }) {
-  // const id = params.id
+  console.log("params:", params);
   const ticket = await getTicket(params.id);
 
   return (
@@ -43,6 +43,9 @@ export default async function TicketDetails({ params }) {
         <div className={`pill ${ticket.priority}`}>
           {ticket.priority} priority
         </div>
+      </div>
+      <div>
+        <button className="btn-primary">Delete</button>
       </div>
     </main>
   );
