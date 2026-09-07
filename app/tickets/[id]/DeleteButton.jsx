@@ -1,13 +1,18 @@
 "use client";
+import { useRouter } from "next/navigation";
 
-export default async function DeleteButton({ id }) {
-  const handleDelete = () => {
+export default function DeleteButton({ id }) {
+  const router = useRouter();
+  
+  const handleDelete = async () => {
     console.log("Ticket ID:", id);
 
-    const res = await fetch("http://192.168.1.68:4000/tickets/${id}", {
+    const res = await fetch(`http://192.168.1.68:4000/tickets/${id}`, {
       method: "DELETE",
     });
-    if (res.status === 200 | res.status === 204) {
+    setTimeout(()=>{console.log(res)}, 500);
+
+    if (res.ok) {
       router.refresh();
       router.push("/tickets");
     }
