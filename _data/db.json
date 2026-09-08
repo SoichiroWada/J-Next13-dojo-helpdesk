@@ -48,6 +48,13 @@
       "user_email": "sondaison@fakenews.com",
       "priority": "high",
       "id": "fftlSrw1ygY"
+    },
+    {
+      "title": "holy shit",
+      "body": "I suddenly thought, \"Holy shit! If this plane's engines were to shut off, we'd crash right into those mountains!\"\nWhen she showed him his reflection, he was stunned. \"Holy shit,\" he'd said.",
+      "priority": "medium",
+      "user_email": "mario@netninja.dev",
+      "id": "W5y1HKS5fgQ"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
