@@ -7,14 +7,15 @@ import Navbar from "../components/Navbar";
 
 export default async function DashboardLayout({ children }) {
   const supabase = createServerComponentClient({ cookies });
-  const { data } = await supabase.auth.getSession();
+  const { data, error } = await supabase.auth.getSession();
 
-  // console.log(data);
-  // console.log(data.session);
+  if (error) {
+    console.error("Session error:", error.message);
+  }
 
-  // if (!data.session) {
-  //   redirect("/login");
-  // }
+  if (!data.session) {
+    redirect("/login");
+  }
 
   return (
     <>
