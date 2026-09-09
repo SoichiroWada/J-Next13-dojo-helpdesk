@@ -55,6 +55,13 @@
       "priority": "medium",
       "user_email": "mario@netninja.dev",
       "id": "W5y1HKS5fgQ"
+    },
+    {
+      "title": "asshole",
+      "body": "\n\nanus.\n\nSlang.\n\n    a stupid, mean, or contemptible person.\n\n    the worst part of a place or thing.\n\n",
+      "priority": "medium",
+      "user_email": "mario@netninja.dev",
+      "id": "YY3CE0_h0Hs"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
