@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { error } from "node:console";
 import { useState } from "react";
 
 export default function CreateForm() {
@@ -22,13 +23,19 @@ export default function CreateForm() {
       user_email: "mario@netninja.dev",
     };
 
-    const res = await fetch("http://192.168.1.68:4000/tickets", {
+    const res = await fetch("http://192.168.1.68:3000/api/tickets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newTicket),
     });
 
-    if (res.status === 201) {
+    const json = await res.json()
+
+    if (json.error) {
+      console.log(error.message)
+    }
+
+    if (json.data) {
       router.refresh();
       router.push("/tickets");
     }
