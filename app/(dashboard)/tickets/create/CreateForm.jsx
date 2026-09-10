@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { error } from "node:console";
 import { useState } from "react";
 
 export default function CreateForm() {
@@ -32,7 +31,7 @@ export default function CreateForm() {
     const json = await res.json()
 
     if (json.error) {
-      console.log(error.message)
+      console.log(json.error.message)
     }
 
     if (json.data) {
