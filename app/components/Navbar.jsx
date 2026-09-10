@@ -6,7 +6,7 @@ import Logo from "./dojo-logo.png";
 export default function Navbar({user}) {
   return (
     <nav>
-      <Link href="/">
+      <Link href="/scam">
         <Image
           src={Logo}
           alt="Dojo Helpdesk logo"
