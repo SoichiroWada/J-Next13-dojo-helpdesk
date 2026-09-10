@@ -22,7 +22,7 @@ export async function POST(request) {
 
   //insert the data
   const { data, error } = await supabase
-    .from("tickets")
+    .from("Tickets")
     .insert({
       ...ticket,
       user_email: session.user.email,
