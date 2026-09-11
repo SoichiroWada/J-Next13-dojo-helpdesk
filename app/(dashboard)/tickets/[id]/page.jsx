@@ -1,31 +1,41 @@
 import { notFound } from "next/navigation";
 import DeleteButton from "./DeleteButton";
+import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 
 export const dynamicParams = true; // default val = true
 
-export async function generateStaticParams() {
-  const res = await fetch("http://192.168.1.68:4000/tickets");
-  const tickets = await res.json();
+export async function generateMetadata({ params }) {
+  const supabase = createServerComponentClient({ cookies });
 
-  return tickets.map((ticket) => ({
-    id: ticket.id,
-  }));
+  const { data: ticket } = await supabase
+    .from("Tickets")
+    .select()
+    .eq("id", params.id)
+    .single();
+
+  return {
+    title: `Dojo Helpdesk | ${ticket.title || "Ticket not found"}`,
+  };
 }
 
 async function getTicket(id) {
-  const res = await fetch(`http://192.168.1.68:4000/tickets/${id}`, {
-    next: {
-      revalidate: 60,
-    },
-  });
-  if (!res.ok) {
+  const supabase = createServerComponentClient({ cookies });
+
+  const { data } = await supabase
+    .from("Tickets")
+    .select()
+    .eq("id", id)
+    .single();
+
+  if (!data) {
     notFound();
   }
-  return res.json();
+
+  return data;
 }
 
 export default async function TicketDetails({ params }) {
-  console.log("params:", params);
   const ticket = await getTicket(params.id);
 
   return (
