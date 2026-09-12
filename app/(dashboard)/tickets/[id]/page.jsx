@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
-import DeleteButton from "./DeleteButton";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+
+//components
+import DeleteButton from "./DeleteButton";
 
 export const dynamicParams = true; // default val = true
 
@@ -31,12 +33,13 @@ async function getTicket(id) {
   if (!data) {
     notFound();
   }
-
   return data;
 }
 
 export default async function TicketDetails({ params }) {
   const ticket = await getTicket(params.id);
+  const supabase = createServerComponentClient({ cookies });
+  const { data } = await supabase.auth.getSession();
 
   return (
     <main>
@@ -51,7 +54,9 @@ export default async function TicketDetails({ params }) {
           {ticket.priority} priority
         </div>
       </div>
-      <DeleteButton id={params.id}></DeleteButton>
+      {data.session.user.email === ticket.user_email && (
+        <DeleteButton id={ticket.id}></DeleteButton>
+      )}
     </main>
   );
 }
