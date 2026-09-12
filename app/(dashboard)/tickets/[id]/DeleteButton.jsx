@@ -1,29 +1,32 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+// icons & UI
+import { TiDelete } from "react-icons/ti";
 
 export default function DeleteButton({ id }) {
   console.log("Ticket ID:", id);
-  const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
-  const [error, setError] = useState("");
+  const router = useRouter();
 
-  const handleDelete = async () => {
+  const handleClick = async () => {
     setIsDeleting(true);
-    setError("");
 
     try {
-      const res = await fetch(`http://192.168.1.68:4000/tickets/${id}`, {
+      const res = await fetch(`/api/tickets/${id}`, {
         method: "DELETE",
       });
-      console.log(res);
-      if (!res.ok) {
-        throw new Error(`Delete failed: ${res.status}`);
+      const json = await res.json();
+
+      if (json.error) {
+        console.log("Delete error:", json.error);
+        setIsDeleting(false);
       }
-      router.push("/tickets");
       router.refresh();
-    } catch (err) {
-      setError(err.message);
+      router.push("/tickets");
+    } catch (error) {
+      console.log("Delete request failed:", error);
       setIsDeleting(false);
     }
   };
@@ -32,12 +35,12 @@ export default function DeleteButton({ id }) {
     <div className="flex justify-center">
       <button
         className="btn-primary"
-        onClick={handleDelete}
+        onClick={handleClick}
         disabled={isDeleting}
       >
-        {isDeleting ? "Deleting..." : "Delete"}
+        <TiDelete />
+        {isDeleting ? "Deleting...." : "Delete Ticket"}
       </button>
-      {error && <p className="text-red-500">{error}</p>}
     </div>
   );
 }
