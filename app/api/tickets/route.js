@@ -1,29 +1,18 @@
-// import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 export async function POST(request) {
   const ticket = await request.json();
 
   //get supabase instance
-  // const supabase = createRouteHandlerClient({ cookies });
   const supabase = await createClient();
 
   //get the current user session
-  // const {
-  //   data: { session },
-  // } = await supabase.auth.getSession();
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
 
-  // if (!session) {
-  //   return NextResponse.json(
-  //     { data: null, error: { message: "Not authenticated" } },
-  //     { status: 401 },
-  //   );
   if (userError || !user) {
     return NextResponse.json(
       {
@@ -39,7 +28,6 @@ export async function POST(request) {
     .from("Tickets")
     .insert({
       ...ticket,
-      // user_email: session.user.email,
       user_email: user.email,
     })
     .select()

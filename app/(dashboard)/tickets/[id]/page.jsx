@@ -1,7 +1,5 @@
 import { notFound } from "next/navigation";
-// import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { createClient } from "@/utils/supabase/server";
-import { cookies } from "next/headers";
 
 //components
 import DeleteButton from "./DeleteButton";
@@ -11,7 +9,6 @@ export const dynamicParams = true; // default val = true
 export async function generateMetadata({ params }) {
   const { id } = await params;
 
-  // const supabase = createServerComponentClient({ cookies });
   const supabase = await createClient();
 
   const { data: ticket } = await supabase
@@ -26,7 +23,6 @@ export async function generateMetadata({ params }) {
 }
 
 async function getTicket(id) {
-  // const supabase = createServerComponentClient({ cookies });
   const supabase = await createClient();
 
   const { data } = await supabase
@@ -44,10 +40,9 @@ async function getTicket(id) {
 export default async function TicketDetails({ params }) {
   const { id } = await params;
   const ticket = await getTicket(id);
-  // const ticket = await getTicket(params.id);
-  // const supabase = createServerComponentClient({ cookies });
+
   const supabase = await createClient();
-  // const { data } = await supabase.auth.getSession();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -65,7 +60,6 @@ export default async function TicketDetails({ params }) {
           {ticket.priority} priority
         </div>
       </div>
-      {/* {data.session.user.email === ticket.user_email && ( */}
       {user?.email === ticket.user_email && (
         <DeleteButton id={ticket.id}></DeleteButton>
       )}

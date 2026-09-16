@@ -1,5 +1,3 @@
-// import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-// import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -7,8 +5,7 @@ import { redirect } from "next/navigation";
 import Navbar from "../components/Navbar";
 
 export default async function DashboardLayout({ children }) {
-  // const supabase = createServerComponentClient({ cookies });
-  // const { data, error } = await supabase.auth.getSession();
+
   const supabase = await createClient();
 
   const {
