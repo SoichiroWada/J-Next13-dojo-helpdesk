@@ -1,12 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+// import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/utils/supabase/client";
 
 export default function LogoutButton() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    const supabase = createClientComponentClient();
+    // const supabase = createClientComponentClient();
+    const supabase = createClient();
     const { error } = await supabase.auth.signOut();
 
     if (!error) {
