@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-dynamic";
 
 export async function GET(_, { params }) {
-  const id = params.id;
+  // const id = params.id;
+  const { id } = await params;
   const res = await fetch(`http://192.168.1.68:4000/tickets/${id}`);
   const tickets = await res.json();
 

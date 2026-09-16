@@ -7,13 +7,29 @@ import DeleteButton from "./DeleteButton";
 
 export const dynamicParams = true; // default val = true
 
+// export async function generateMetadata({ params }) {
+//   const supabase = createServerComponentClient({ cookies });
+
+//   const { data: ticket } = await supabase
+//     .from("Tickets")
+//     .select()
+//     .eq("id", params.id)
+//     .single();
+
+//   return {
+//     title: `Dojo Helpdesk | ${ticket?.title || "Ticket not found"}`,
+//   };
+// }
+
 export async function generateMetadata({ params }) {
+  const { id } = await params;
+
   const supabase = createServerComponentClient({ cookies });
 
   const { data: ticket } = await supabase
     .from("Tickets")
     .select()
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   return {
@@ -37,7 +53,9 @@ async function getTicket(id) {
 }
 
 export default async function TicketDetails({ params }) {
-  const ticket = await getTicket(params.id);
+  const { id } = await params;
+  const ticket = await getTicket(id);
+  // const ticket = await getTicket(params.id);
   const supabase = createServerComponentClient({ cookies });
   const { data } = await supabase.auth.getSession();
 
