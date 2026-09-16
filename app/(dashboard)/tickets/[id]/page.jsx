@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+// import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 
 //components
@@ -7,24 +8,11 @@ import DeleteButton from "./DeleteButton";
 
 export const dynamicParams = true; // default val = true
 
-// export async function generateMetadata({ params }) {
-//   const supabase = createServerComponentClient({ cookies });
-
-//   const { data: ticket } = await supabase
-//     .from("Tickets")
-//     .select()
-//     .eq("id", params.id)
-//     .single();
-
-//   return {
-//     title: `Dojo Helpdesk | ${ticket?.title || "Ticket not found"}`,
-//   };
-// }
-
 export async function generateMetadata({ params }) {
   const { id } = await params;
 
-  const supabase = createServerComponentClient({ cookies });
+  // const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
 
   const { data: ticket } = await supabase
     .from("Tickets")
@@ -38,7 +26,8 @@ export async function generateMetadata({ params }) {
 }
 
 async function getTicket(id) {
-  const supabase = createServerComponentClient({ cookies });
+  // const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
 
   const { data } = await supabase
     .from("Tickets")
@@ -56,7 +45,8 @@ export default async function TicketDetails({ params }) {
   const { id } = await params;
   const ticket = await getTicket(id);
   // const ticket = await getTicket(params.id);
-  const supabase = createServerComponentClient({ cookies });
+  // const supabase = createServerComponentClient({ cookies });
+  const supabase = await createClient();
   const { data } = await supabase.auth.getSession();
 
   return (
