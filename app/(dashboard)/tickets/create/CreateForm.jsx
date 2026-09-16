@@ -27,10 +27,16 @@ export default function CreateForm() {
       body: JSON.stringify(newTicket),
     });
 
-    const json = await res.json()
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("API error:", res.status, text);
+      setIsLoading(false);
+      return;
+    }
+    const json = await res.json();
 
     if (json.error) {
-      console.log(json.error.message)
+      console.log(json.error.message);
     }
 
     if (json.data) {
