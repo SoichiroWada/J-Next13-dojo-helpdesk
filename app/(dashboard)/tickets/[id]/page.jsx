@@ -47,7 +47,10 @@ export default async function TicketDetails({ params }) {
   // const ticket = await getTicket(params.id);
   // const supabase = createServerComponentClient({ cookies });
   const supabase = await createClient();
-  const { data } = await supabase.auth.getSession();
+  // const { data } = await supabase.auth.getSession();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <main>
@@ -62,7 +65,8 @@ export default async function TicketDetails({ params }) {
           {ticket.priority} priority
         </div>
       </div>
-      {data.session.user.email === ticket.user_email && (
+      {/* {data.session.user.email === ticket.user_email && ( */}
+      {user?.email === ticket.user_email && (
         <DeleteButton id={ticket.id}></DeleteButton>
       )}
     </main>

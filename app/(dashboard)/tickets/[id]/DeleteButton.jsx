@@ -22,6 +22,7 @@ export default function DeleteButton({ id }) {
       if (json.error) {
         console.log("Delete error:", json.error);
         setIsDeleting(false);
+        return;
       }
       router.push("/tickets");
       // router.refresh();
