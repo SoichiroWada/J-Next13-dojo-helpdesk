@@ -1,4 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  images: {
+    qualities: [75, 100],
+  },
 
-module.exports = nextConfig
+  allowedDevOrigins: ["192.168.1.68"],
+};
+
+module.exports = nextConfig;
