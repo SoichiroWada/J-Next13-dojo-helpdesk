@@ -23,8 +23,8 @@ export default function DeleteButton({ id }) {
         console.log("Delete error:", json.error);
         setIsDeleting(false);
       }
-      router.refresh();
       router.push("/tickets");
+      // router.refresh();
     } catch (error) {
       console.log("Delete request failed:", error);
       setIsDeleting(false);
