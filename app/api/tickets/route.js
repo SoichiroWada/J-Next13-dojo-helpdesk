@@ -39,7 +39,8 @@ export async function POST(request) {
     .from("Tickets")
     .insert({
       ...ticket,
-      user_email: session.user.email,
+      // user_email: session.user.email,
+      user_email: user.email,
     })
     .select()
     .single();

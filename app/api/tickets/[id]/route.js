@@ -34,7 +34,11 @@ export async function DELETE(_, { params }) {
     );
   }
 
-  const { error } = await supabase.from("Tickets").delete().eq("id", id).eq("user_email", user.email);
+  const { error } = await supabase
+    .from("Tickets")
+    .delete()
+    .eq("id", id)
+    .eq("user_email", user.email);
 
   return NextResponse.json({ error });
 }
