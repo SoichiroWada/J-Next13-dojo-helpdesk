@@ -1,20 +1,29 @@
+"use client";
+
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/server";
+import { useEffect, useState } from "react";
+import { getTickets } from "@/utils/firebase/tickets";
+import Loading from "../loading";
 
-async function getTickets() {
-  const supabase = await createClient();
+export default function TicketList() {
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const { data, error } = await supabase.from("Tickets").select();
+  useEffect(() => {
+    let active = true;
+    getTickets().then((tickets) => {
+      if (active) setTickets(tickets);
+    }).catch((error) => {
+      if (active) setError(error.message);
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
+  }, []);
 
-  if (error) {
-    console.log(error.message);
-  }
-
-  return data;
-}
-
-export default async function TicketList() {
-  const tickets = await getTickets();
+  if (loading) return <Loading />;
+  if (error) return <div className="error">{error}</div>;
 
   return (
     <>

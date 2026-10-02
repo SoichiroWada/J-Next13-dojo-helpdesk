@@ -1,51 +1,35 @@
-import { notFound } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+"use client";
 
-//components
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useAuth } from "../../../components/AuthProvider";
+import { getTicket } from "@/utils/firebase/tickets";
 import DeleteButton from "./DeleteButton";
+import NotFound from "./not-found";
+import Loading from "../../loading";
 
-export const dynamicParams = true; // default val = true
+export default function TicketDetails() {
+  const { id } = useParams();
+  const { user } = useAuth();
+  const [result, setResult] = useState({ id: null, ticket: null, error: "" });
 
-export async function generateMetadata({ params }) {
-  const { id } = await params;
+  useEffect(() => {
+    let active = true;
+    getTicket(id).then((ticket) => {
+      if (active) {
+        setResult({ id, ticket, error: "" });
+        document.title = "Dojo Helpdesk | " + (ticket?.title || "Ticket not found");
+      }
+    }).catch((error) => {
+      if (active) setResult({ id, ticket: null, error: error.message });
+    });
+    return () => { active = false; document.title = "Dojo Helpdesk"; };
+  }, [id]);
 
-  const supabase = await createClient();
-
-  const { data: ticket } = await supabase
-    .from("Tickets")
-    .select()
-    .eq("id", id)
-    .single();
-
-  return {
-    title: `Dojo Helpdesk | ${ticket?.title || "Ticket not found"}`,
-  };
-}
-
-async function getTicket(id) {
-  const supabase = await createClient();
-
-  const { data } = await supabase
-    .from("Tickets")
-    .select()
-    .eq("id", id)
-    .single();
-
-  if (!data) {
-    notFound();
-  }
-  return data;
-}
-
-export default async function TicketDetails({ params }) {
-  const { id } = await params;
-  const ticket = await getTicket(id);
-
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  if (result.id !== id) return <Loading />;
+  if (result.error) return <main><div className="error">{result.error}</div></main>;
+  const ticket = result.ticket;
+  if (!ticket) return <NotFound />;
 
   return (
     <main>
@@ -60,7 +44,7 @@ export default async function TicketDetails({ params }) {
           {ticket.priority} priority
         </div>
       </div>
-      {user?.email === ticket.user_email && (
+      {user?.uid === ticket.user_id && (
         <DeleteButton id={ticket.id}></DeleteButton>
       )}
     </main>

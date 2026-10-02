@@ -1,33 +1,25 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { deleteTicket } from "@/utils/firebase/tickets";
 
 // icons & UI
 import { TiDelete } from "react-icons/ti";
 
 export default function DeleteButton({ id }) {
-  console.log("Ticket ID:", id);
+  const [error, setError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   const handleClick = async () => {
+    if (isDeleting) return;
     setIsDeleting(true);
-
+    setError("");
     try {
-      const res = await fetch(`/api/tickets/${id}`, {
-        method: "DELETE",
-      });
-      const json = await res.json();
-
-      if (json.error) {
-        console.log("Delete error:", json.error);
-        setIsDeleting(false);
-        return;
-      }
+      await deleteTicket(id);
       router.push("/tickets");
-      // router.refresh();
     } catch (error) {
-      console.log("Delete request failed:", error);
+      setError(error.message);
       setIsDeleting(false);
     }
   };
@@ -42,6 +34,7 @@ export default function DeleteButton({ id }) {
         <TiDelete />
         {isDeleting ? "Deleting...." : "Delete Ticket"}
       </button>
+      {error && <div className="error">{error}</div>}
     </div>
   );
 }

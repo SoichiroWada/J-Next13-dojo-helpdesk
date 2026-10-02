@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { createTicket } from "@/utils/firebase/tickets";
 
 export default function CreateForm() {
   const router = useRouter();
@@ -10,38 +11,20 @@ export default function CreateForm() {
   const [body, setBody] = useState("");
   const [priority, setPriority] = useState("low");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
     setIsLoading(true);
-
-    const newTicket = {
-      title,
-      body,
-      priority,
-    };
-
-    const res = await fetch("/api/tickets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newTicket),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("API error:", res.status, text);
-      setIsLoading(false);
-      return;
-    }
-    const json = await res.json();
-
-    if (json.error) {
-      console.log(json.error.message);
-    }
-
-    if (json.data) {
-      router.refresh();
+    setError("");
+    try {
+      await createTicket({ title, body, priority });
       router.push("/tickets");
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,6 +59,7 @@ export default function CreateForm() {
         {isLoading && <span>Adding...</span>}
         {!isLoading && <span>Add Ticket</span>}
       </button>
+      {error && <div className="error">{error}</div>}
     </form>
   );
 }

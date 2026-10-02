@@ -1,17 +1,21 @@
+"use client";
+
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "../components/AuthProvider";
 
-export default async function AuthLayout({ children }) {
-  const supabase = await createClient();
+export default function AuthLayout({ children }) {
+  const { user, loading, error } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    redirect("/");
-  }
+  useEffect(() => {
+    if (!loading && !error && user) {
+      if (user.emailVerified) router.replace("/");
+      else if (pathname !== "/verify") router.replace("/verify");
+    }
+  }, [user, loading, error, pathname, router]);
 
   return (
     <>
@@ -20,8 +24,9 @@ export default async function AuthLayout({ children }) {
         <Link href="/signup">Sign up</Link>
         <Link href="/login">Login</Link>
       </nav>
-
-      {children}
+      {error ? <main><div className="error">{error}</div></main> :
+        loading ? <main className="text-center"><h2>Loading...</h2></main> :
+        user && (user.emailVerified || pathname !== "/verify") ? null : children}
     </>
   );
 }
