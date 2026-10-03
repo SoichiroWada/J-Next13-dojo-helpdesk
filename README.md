@@ -40,10 +40,11 @@ to /verify. Signup sends a verification email. The verification page can resend
 it or reload the user and refresh the ID token after the link is opened.
 A user whose initial verification email fails can resend from that page.
 
-Ticket reads, creates, and deletes run in the browser. Firestore rules, rather
+Ticket reads, creates, updates, and deletes run in the browser. Firestore rules, rather
 than client navigation, enforce authorization: verified users can read all
-tickets, create with their own UID/email, and delete only their own documents.
-Updates and access to other collections are denied. Each document contains
+tickets, create with their own UID/email, and edit or delete any ticket.
+Updates may change only title, body, and priority; creator UID/email and creation
+time remain unchanged. Access to other collections is denied. Each document contains
 title, body, priority, user_id, user_email, and a server-generated created_at
 timestamp. Document IDs are the ticket IDs; lists show newest tickets first.
 
@@ -63,8 +64,12 @@ After configuring Firebase and publishing rules:
 - Log out and log in; confirm Navbar displays your email.
 - Open / and /tickets while logged out; confirm redirect to /login.
 - Create a ticket; confirm all six fields and a timestamp in Firestore.
-- View the list and details, then delete your own ticket.
-- Sign in as a second verified user; read the first user's ticket and confirm
-  no Delete button. Confirm a direct delete request is rejected by rules.
-- In Rules Playground or the emulator, confirm unauthenticated/unverified reads,
-  forged UID/email creates, non-owner deletes, and all updates are rejected.
+- View the list and details; confirm badges appear at the upper-right.
+- Edit a ticket; confirm the form is prefilled, changes persist, and creator
+  UID/email and creation time are unchanged.
+- Cancel the delete confirmation; confirm the ticket remains. Confirm deletion
+  removes it and returns to the list.
+- Sign in as a second verified user; edit and delete the first user's ticket.
+- In Rules Playground or the emulator, confirm unauthenticated/unverified access,
+  forged UID/email creates, invalid priorities, and updates to creator fields or
+  creation time are rejected.

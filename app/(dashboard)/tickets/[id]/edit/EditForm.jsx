@@ -2,14 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { createTicket } from "@/utils/firebase/tickets";
+import { updateTicket } from "@/utils/firebase/tickets";
 
-export default function CreateForm() {
+export default function EditForm({ ticket }) {
   const router = useRouter();
 
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [priority, setPriority] = useState("low");
+  const [title, setTitle] = useState(ticket.title);
+  const [body, setBody] = useState(ticket.body);
+  const [priority, setPriority] = useState(ticket.priority);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -19,8 +19,8 @@ export default function CreateForm() {
     setIsLoading(true);
     setError("");
     try {
-      await createTicket({ title, body, priority });
-      router.push("/tickets");
+      await updateTicket(ticket.id, { title, body, priority });
+      router.push(`/tickets/${ticket.id}`);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -47,8 +47,8 @@ export default function CreateForm() {
         </select>
       </label>
       <button className="btn-primary" disabled={isLoading}>
-        {isLoading && <span>Adding...</span>}
-        {!isLoading && <span>Add Ticket</span>}
+        {isLoading && <span>Updating...</span>}
+        {!isLoading && <span>Update</span>}
       </button>
       {error && <div className="error">{error}</div>}
     </form>

@@ -3,9 +3,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteTicket } from "@/utils/firebase/tickets";
 
-// icons & UI
-import { TiDelete } from "react-icons/ti";
-
 export default function DeleteButton({ id }) {
   const [error, setError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -13,6 +10,7 @@ export default function DeleteButton({ id }) {
 
   const handleClick = async () => {
     if (isDeleting) return;
+    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
     setIsDeleting(true);
     setError("");
     try {
@@ -25,13 +23,12 @@ export default function DeleteButton({ id }) {
   };
 
   return (
-    <div className="flex justify-center">
+    <div className="flex flex-col items-start">
       <button
-        className="btn-primary"
+        className="btn-delete"
         onClick={handleClick}
         disabled={isDeleting}
       >
-        <TiDelete />
         {isDeleting ? "Deleting...." : "Delete Ticket"}
       </button>
       {error && <div className="error">{error}</div>}

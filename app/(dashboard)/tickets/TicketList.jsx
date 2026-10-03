@@ -30,7 +30,7 @@ export default function TicketList() {
       {tickets.map((ticket) => (
         <div key={ticket.id} className="card my-5">
           <Link href={`/tickets/${ticket.id}`}>
-            <h3>{ticket.title}</h3>
+            <h3 className="pr-28">{ticket.title}</h3>
             <p>{ticket.body.slice(0, 250)}...</p>
             <div className={`pill ${ticket.priority}`}>
               {ticket.priority} priority

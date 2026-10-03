@@ -1,6 +1,6 @@
 "use client";
 
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, serverTimestamp, updateDoc } from "firebase/firestore";
 import { getFirebase } from "./client";
 
 export async function getTickets() {
@@ -24,6 +24,12 @@ export async function createTicket({ title, body, priority }) {
 }
 
 export async function deleteTicket(id) {
-  // Firestore rules enforce ownership, including requests made outside this UI.
+  // Firestore rules require verified authentication, including outside this UI.
   await deleteDoc(doc(getFirebase().db, "tickets", id));
+}
+
+
+// Only editable fields are sent; creator information and creation time are preserved.
+export async function updateTicket(id, { title, body, priority }) {
+  await updateDoc(doc(getFirebase().db, "tickets", id), { title, body, priority });
 }
