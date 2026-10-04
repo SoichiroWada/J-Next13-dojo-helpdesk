@@ -4,24 +4,26 @@ import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, se
 import { getFirebase } from "./client";
 import type { Ticket, TicketDocument, TicketFormData } from "@/types/ticket";
 
-// Firestore data is untyped. The assertion describes the existing schema; it
-// does not transform records or add new validation behavior.
+// Normalize legacy records for display only; reading never writes to Firestore.
+function normalizeTicket(id: string, data: TicketDocument): Ticket {
+  return { ...data, id, status: data.status ?? "Not started" };
+}
 export async function getTickets(): Promise<Ticket[]> {
   const snapshot = await getDocs(query(collection(getFirebase().db, "tickets"), orderBy("created_at", "desc")));
-  return snapshot.docs.map((document) => ({ ...(document.data() as TicketDocument), id: document.id }));
+  return snapshot.docs.map((document) => normalizeTicket(document.id, document.data() as TicketDocument));
 }
 
 export async function getTicket(id: string): Promise<Ticket | null> {
   const snapshot = await getDoc(doc(getFirebase().db, "tickets", id));
-  return snapshot.exists() ? { ...(snapshot.data() as TicketDocument), id: snapshot.id } : null;
+  return snapshot.exists() ? normalizeTicket(snapshot.id, snapshot.data() as TicketDocument) : null;
 }
 
-export async function createTicket({ title, body, priority }: TicketFormData) {
+export async function createTicket({ title, body, status }: TicketFormData) {
   const { auth, db } = getFirebase();
   const user = auth.currentUser;
   if (!user?.emailVerified) throw new Error("Please verify your email before creating tickets.");
   return addDoc(collection(db, "tickets"), {
-    title, body, priority, user_id: user.uid, user_email: user.email,
+    title, body, status, priority: "low", user_id: user.uid, user_email: user.email,
     created_at: serverTimestamp(),
   });
 }
@@ -33,6 +35,6 @@ export async function deleteTicket(id: string): Promise<void> {
 
 
 // Only editable fields are sent; creator information and creation time are preserved.
-export async function updateTicket(id: string, { title, body, priority }: TicketFormData): Promise<void> {
-  await updateDoc(doc(getFirebase().db, "tickets", id), { title, body, priority });
+export async function updateTicket(id: string, { title, body, status }: TicketFormData): Promise<void> {
+  await updateDoc(doc(getFirebase().db, "tickets", id), { title, body, status, updated_at: serverTimestamp() });
 }

@@ -9,6 +9,8 @@ import { getTicket } from "@/utils/firebase/tickets";
 import DeleteButton from "./DeleteButton";
 import NotFound from "./not-found";
 import Loading from "../../loading";
+import { formatTokyoDateTime } from "@/utils/date";
+import StatusBadge from "@/app/components/StatusBadge";
 
 export default function TicketDetails() {
   const { id } = useParams<TicketRouteParams>();
@@ -48,10 +50,14 @@ export default function TicketDetails() {
         <h2>Ticket Details</h2>
       </nav>
       <div className="card">
-        <h3 className="pr-28">{ticket.title}</h3>
-        <small>Created by {ticket.user_email}</small>
+        <h3 className="pr-56">{ticket.title}</h3>
+        <small className="block">Created at: {formatTokyoDateTime(ticket.created_at)}</small>
+        {ticket.updated_at && (
+          <small className="block">Updated at: {formatTokyoDateTime(ticket.updated_at)}</small>
+        )}
+        <small className="block">Created by: {ticket.user_email}</small>
+        <StatusBadge status={ticket.status} />
         <p>{ticket.body}</p>
-        <div className={`pill ${ticket.priority}`}>{ticket.priority} priority</div>
       </div>
       <div className="flex justify-center gap-4 mt-4">
         <Link href={`/tickets/${ticket.id}/edit`}>
