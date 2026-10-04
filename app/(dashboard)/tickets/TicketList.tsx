@@ -1,12 +1,14 @@
 "use client";
 
+import type { Ticket } from "@/types/ticket";
+import { getErrorMessage } from "@/utils/errors";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getTickets } from "@/utils/firebase/tickets";
 import Loading from "../loading";
 
 export default function TicketList() {
-  const [tickets, setTickets] = useState([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -15,7 +17,7 @@ export default function TicketList() {
     getTickets().then((tickets) => {
       if (active) setTickets(tickets);
     }).catch((error) => {
-      if (active) setError(error.message);
+      if (active) setError(getErrorMessage(error));
     }).finally(() => {
       if (active) setLoading(false);
     });

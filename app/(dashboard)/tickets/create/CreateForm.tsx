@@ -1,28 +1,31 @@
 "use client";
 
+import type { FormEvent } from "react";
+import type { TicketPriority } from "@/types/ticket";
+import { getErrorMessage } from "@/utils/errors";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { updateTicket } from "@/utils/firebase/tickets";
+import { createTicket } from "@/utils/firebase/tickets";
 
-export default function EditForm({ ticket }) {
+export default function CreateForm() {
   const router = useRouter();
 
-  const [title, setTitle] = useState(ticket.title);
-  const [body, setBody] = useState(ticket.body);
-  const [priority, setPriority] = useState(ticket.priority);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [priority, setPriority] = useState<TicketPriority>("low");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isLoading) return;
     setIsLoading(true);
     setError("");
     try {
-      await updateTicket(ticket.id, { title, body, priority });
-      router.push(`/tickets/${ticket.id}`);
+      await createTicket({ title, body, priority });
+      router.push("/tickets");
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -40,15 +43,15 @@ export default function EditForm({ ticket }) {
       </label>
       <label>
         <span>Priority:</span>
-        <select onChange={(e) => setPriority(e.target.value)} value={priority}>
+        <select onChange={(e) => setPriority(e.target.value as TicketPriority)} value={priority}>
           <option value="low">Low Priority</option>
           <option value="medium">Medium Priority</option>
           <option value="high">High Priority</option>
         </select>
       </label>
       <button className="btn-primary" disabled={isLoading}>
-        {isLoading && <span>Updating...</span>}
-        {!isLoading && <span>Update</span>}
+        {isLoading && <span>Adding...</span>}
+        {!isLoading && <span>Add Ticket</span>}
       </button>
       {error && <div className="error">{error}</div>}
     </form>

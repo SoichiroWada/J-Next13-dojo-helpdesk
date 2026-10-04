@@ -1,5 +1,6 @@
 "use client";
 
+import { getErrorMessage } from "@/utils/errors";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "firebase/auth";
@@ -17,7 +18,7 @@ export default function LogoutButton() {
       await signOut(getFirebase().auth);
       router.replace("/login");
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
     } finally {
       setBusy(false);
     }
