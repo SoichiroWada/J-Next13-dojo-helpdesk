@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function AuthForm({ handleSubmit }) {
+export default function AuthForm({ handleSubmit, busy }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -26,7 +26,7 @@ export default function AuthForm({ handleSubmit }) {
           required
         />
       </label>
-      <button className="btn-primary">Submit</button>
+      <button className="btn-primary" disabled={busy}>{busy ? "Submitting..." : "Submit"}</button>
     </form>
   );
 }

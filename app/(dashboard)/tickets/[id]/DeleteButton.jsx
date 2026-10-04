@@ -1,46 +1,37 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-// icons & UI
-import { TiDelete } from "react-icons/ti";
+import { deleteTicket } from "@/utils/firebase/tickets";
 
 export default function DeleteButton({ id }) {
-  console.log("Ticket ID:", id);
+  const [error, setError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   const handleClick = async () => {
+    if (isDeleting) return;
+    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
     setIsDeleting(true);
-
+    setError("");
     try {
-      const res = await fetch(`/api/tickets/${id}`, {
-        method: "DELETE",
-      });
-      const json = await res.json();
-
-      if (json.error) {
-        console.log("Delete error:", json.error);
-        setIsDeleting(false);
-      }
-      router.refresh();
+      await deleteTicket(id);
       router.push("/tickets");
     } catch (error) {
-      console.log("Delete request failed:", error);
+      setError(error.message);
       setIsDeleting(false);
     }
   };
 
   return (
-    <div className="flex justify-center">
+    <div className="flex flex-col items-start">
       <button
-        className="btn-primary"
+        className="btn-delete"
         onClick={handleClick}
         disabled={isDeleting}
       >
-        <TiDelete />
         {isDeleting ? "Deleting...." : "Delete Ticket"}
       </button>
+      {error && <div className="error">{error}</div>}
     </div>
   );
 }

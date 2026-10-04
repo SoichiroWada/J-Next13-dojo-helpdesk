@@ -1,26 +1,23 @@
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+"use client";
 
-// components
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "../components/AuthProvider";
 import Navbar from "../components/Navbar";
+import Loading from "./loading";
 
-export default async function DashboardLayout({ children }) {
-  const supabase = createServerComponentClient({ cookies });
-  const { data, error } = await supabase.auth.getSession();
+export default function DashboardLayout({ children }) {
+  const { user, loading, error } = useAuth();
+  const router = useRouter();
 
-  if (error) {
-    console.error("Session error:", error.message);
-  }
+  useEffect(() => {
+    if (!loading && !error) {
+      if (!user) router.replace("/login");
+      else if (!user.emailVerified) router.replace("/verify");
+    }
+  }, [user, loading, error, router]);
 
-  if (!data.session) {
-    redirect("/login");
-  }
-
-  return (
-    <>
-      <Navbar user={data.session.user} />
-      {children}
-    </>
-  );
+  if (error) return <main><div className="error">{error}</div></main>;
+  if (loading || !user || !user.emailVerified) return <Loading />;
+  return <><Navbar user={user} />{children}</>;
 }

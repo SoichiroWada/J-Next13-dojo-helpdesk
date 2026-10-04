@@ -1,4 +1,5 @@
 import "./globals.css";
+import AuthProvider from "./components/AuthProvider";
 import { Rubik } from "next/font/google";
 
 const rubik = Rubik({ subsets: ["latin"] })
@@ -12,7 +13,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={rubik.className}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
