@@ -1,10 +1,15 @@
 import React from "react";
+import type { User } from "firebase/auth";
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "./dojo-logo.png";
 import LogoutButton from "./LogoutButton";
 
-export default function Navbar({ user }) {
+interface NavbarProps {
+  user: User | null;
+}
+
+export default function Navbar({ user }: NavbarProps) {
   return (
     <nav>
       <Link href="/">

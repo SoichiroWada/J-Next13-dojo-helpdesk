@@ -1,11 +1,12 @@
 "use client";
 
+import type { ChildrenProps } from "@/types/components";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "../components/AuthProvider";
 
-export default function AuthLayout({ children }) {
+export default function AuthLayout({ children }: ChildrenProps) {
   const { user, loading, error } = useAuth();
   const router = useRouter();
   const pathname = usePathname();

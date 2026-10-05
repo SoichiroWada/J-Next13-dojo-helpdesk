@@ -1,9 +1,14 @@
 "use client";
+import { getErrorMessage } from "@/utils/errors";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteTicket } from "@/utils/firebase/tickets";
 
-export default function DeleteButton({ id }) {
+interface DeleteButtonProps {
+  id: string;
+}
+
+export default function DeleteButton({ id }: DeleteButtonProps) {
   const [error, setError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -17,7 +22,7 @@ export default function DeleteButton({ id }) {
       await deleteTicket(id);
       router.push("/tickets");
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
       setIsDeleting(false);
     }
   };

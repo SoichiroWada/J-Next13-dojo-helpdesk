@@ -1,8 +1,14 @@
 "use client";
 
+import type { AuthSubmitHandler } from "@/types/auth";
 import { useState } from "react";
 
-export default function AuthForm({ handleSubmit, busy }) {
+interface AuthFormProps {
+  handleSubmit: AuthSubmitHandler;
+  busy: boolean;
+}
+
+export default function AuthForm({ handleSubmit, busy }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 

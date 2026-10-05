@@ -1,5 +1,6 @@
 "use client";
 
+import { getErrorMessage } from "@/utils/errors";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { sendEmailVerification } from "firebase/auth";
@@ -13,7 +14,7 @@ export default function Verify() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  async function handleVerification(resend) {
+  async function handleVerification(resend: boolean) {
     setBusy(true);
     setError("");
     setMessage("");
@@ -30,7 +31,7 @@ export default function Verify() {
         setMessage("Your email has not been verified yet. Open the link in your inbox, then check again.");
       }
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
     } finally {
       setBusy(false);
     }

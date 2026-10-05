@@ -1,12 +1,13 @@
 "use client";
 
+import type { ChildrenProps } from "@/types/components";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../components/AuthProvider";
 import Navbar from "../components/Navbar";
 import Loading from "./loading";
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayout({ children }: ChildrenProps) {
   const { user, loading, error } = useAuth();
   const router = useRouter();
 

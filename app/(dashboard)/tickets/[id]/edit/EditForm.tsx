@@ -1,35 +1,39 @@
 "use client";
 
+import type { FormEvent } from "react";
+import type { Ticket, TicketStatus } from "@/types/ticket";
+import { ticketStatuses } from "@/types/ticket";
+import { getErrorMessage } from "@/utils/errors";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { updateTicket } from "@/utils/firebase/tickets";
 
-export default function EditForm({ ticket }) {
+export default function EditForm({ ticket }: { ticket: Ticket }) {
   const router = useRouter();
 
   const [title, setTitle] = useState(ticket.title);
   const [body, setBody] = useState(ticket.body);
-  const [priority, setPriority] = useState(ticket.priority);
+  const [status, setStatus] = useState<TicketStatus>(ticket.status);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isLoading) return;
     setIsLoading(true);
     setError("");
     try {
-      await updateTicket(ticket.id, { title, body, priority });
+      await updateTicket(ticket.id, { title, body, status });
       router.push(`/tickets/${ticket.id}`);
     } catch (error) {
-      setError(error.message);
+      setError(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-1/2">
+    <form onSubmit={handleSubmit} className="w-3/4">
       <label>
         <span>Title:</span>
         <input required type="text" onChange={(e) => setTitle(e.target.value)} value={title} />
@@ -39,11 +43,11 @@ export default function EditForm({ ticket }) {
         <textarea required className="h-48" onChange={(e) => setBody(e.target.value)} value={body} />
       </label>
       <label>
-        <span>Priority:</span>
-        <select onChange={(e) => setPriority(e.target.value)} value={priority}>
-          <option value="low">Low Priority</option>
-          <option value="medium">Medium Priority</option>
-          <option value="high">High Priority</option>
+        <span>Status:</span>
+        <select onChange={(e) => setStatus(e.target.value as TicketStatus)} value={status}>
+          {ticketStatuses.map((status) => (
+            <option key={status} value={status}>{status}</option>
+          ))}
         </select>
       </label>
       <button className="btn-primary" disabled={isLoading}>
