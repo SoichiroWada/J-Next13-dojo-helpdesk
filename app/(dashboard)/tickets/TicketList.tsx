@@ -35,7 +35,8 @@ export default function TicketList() {
         <div key={ticket.id} className="card my-5">
           <Link href={`/tickets/${ticket.id}`}>
             <h3 className="pr-56">{ticket.title}</h3>
-            <small>Created at: {formatTokyoDateTime(ticket.created_at)}</small>
+            <small className="block">Created at: {formatTokyoDateTime(ticket.created_at)}</small>
+            <small className="block">Created by: {ticket.user_email}</small>
             <p>{ticket.body.slice(0, 250)}...</p>
             <StatusBadge status={ticket.status} />
           </Link>
