@@ -5,12 +5,8 @@ export default function Home() {
     <main>
       <h2>Dashboard</h2>
       <p>
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Vero
-        repellendus tempore, exercitationem odit, quasi doloremque possimus
-        recusandae alias sequi totam soluta natus iure eius, obcaecati sint
-        dolores blanditiis aspernatur quo officia iusto ut. Et, aliquid sed
-        voluptates iste cum totam, facere explicabo, fugit suscipit ratione
-        aspernatur consequuntur ex mollitia quaerat?
+        ソフトウェア開発における全タスクの進捗状況をリアルタイムで可視化・管理するプラットフォームです。
+        要件定義からテスト、リリースに至る各フェーズのタスクをカード化し、ドラッグ＆ドロップでステータスを更新できます。担当者の自動割り当てや期限のアラート、進捗遅れを検知するダッシュボード機能を備え、チーム全体の業務効率化とプロジェクトの円滑な進行を強力にサポートします。
       </p>
 
       <div className="flex justify-center my-8">
@@ -22,22 +18,15 @@ export default function Home() {
       <h2>Company Updates</h2>
 
       <div className="card">
-        <h3>New member of the web dev team...</h3>
+        <h3>Web開発チームに新しいメンバーが加わります</h3>
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt, at
-          quam. Dolores omnis possimus quam soluta rerum illo laborum ullam
-          pariatur molestiae, modi beatae corrupti.
+          豊富なバックエンド開発実績を持つエンジニアの加入により、チームの技術力を強化します。また、新体制となったセキュリティ対策チームと協業体制となります。
         </p>
       </div>
       <div className="card">
-        <h3>New website live!</h3>
+        <h3>社内向けに新しいWebサイトがロンチされました！</h3>
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt, at
-          quam. Dolores omnis possimus quam soluta rerum illo laborum ullam
-          pariatur molestiae, modi beatae corrupti, assumenda distinctio
-          adipisci, cupiditate minima eum vitae? Similique dicta est facilis
-          debitis, autem temporibus quo repellat illum unde id iste veritatis
-          eveniet, aspernatur enim quas.
+          社内の最新ニュースや業務マニュアル、各種申請フォームを一箇所に集約し、より使いやすくなりました。日々の業務効率化やメンバー間の情報共有に、ぜひご活用ください。
         </p>
       </div>
     </main>
