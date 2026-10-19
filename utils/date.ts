@@ -11,6 +11,7 @@ const tokyoDateTime = new Intl.DateTimeFormat("ja-JP", {
   hour12: false,
 });
 
-export function formatTokyoDateTime(timestamp: Timestamp): string {
+export function formatTokyoDateTime(timestamp?: Timestamp | null): string {
+  if (!timestamp || typeof timestamp.toDate !== "function") return "Just now";
   return tokyoDateTime.format(timestamp.toDate());
 }

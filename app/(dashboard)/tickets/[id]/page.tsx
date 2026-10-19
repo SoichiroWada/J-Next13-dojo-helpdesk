@@ -11,6 +11,7 @@ import NotFound from "./not-found";
 import Loading from "../../loading";
 import { formatTokyoDateTime } from "@/utils/date";
 import StatusBadge from "@/app/components/StatusBadge";
+import TicketMessages from "./TicketMessages";
 
 export default function TicketDetails() {
   const { id } = useParams<TicketRouteParams>();
@@ -65,6 +66,8 @@ export default function TicketDetails() {
         </Link>
         <DeleteButton id={ticket.id} />
       </div>
+
+      <TicketMessages ticketId={ticket.id} ticketAuthorId={ticket.user_id} />
     </main>
   );
 }

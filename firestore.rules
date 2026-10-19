@@ -36,6 +36,22 @@ service cloud.firestore {
         && validStatus()
         && request.resource.data.updated_at is timestamp
         && request.resource.data.updated_at == request.time;
+
+      match /messages/{messageId} {
+        allow read: if verified();
+        allow create: if verified()
+          && request.resource.data.keys().hasAll(['body', 'user_id', 'user_email', 'created_at'])
+          && request.resource.data.keys().hasOnly(['body', 'user_id', 'user_email', 'created_at'])
+          && request.resource.data.body is string
+          && request.resource.data.body.size() > 0
+          && request.resource.data.body.size() <= 10000
+          && request.resource.data.user_id == request.auth.uid
+          && request.resource.data.user_email == request.auth.token.email
+          && request.resource.data.created_at is timestamp
+          && request.resource.data.created_at == request.time;
+        allow update, delete: if false;
+      }
     }
   }
 }
+
