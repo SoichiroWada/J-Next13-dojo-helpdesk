@@ -1,0 +1,46 @@
+# apphosting.yaml（リポジトリ直下）
+runConfig:
+  minInstances: 0
+
+env:
+  # 1. API Key
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyAgufUTkrYduLUWdQNvOhkPkHiKuPV3F-Q"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # 2. Auth Domain
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "ninja-helpdesk-de2ee.firebaseapp.com"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # 3. Project ID
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "ninja-helpdesk-de2ee"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # 4. Storage Bucket
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "ninja-helpdesk-de2ee.firebasestorage.app"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # 5. Messaging Sender ID
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "766018669239"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # 6. App ID
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:766018669239:web:99181212a673d3e6739b32"
+    availability:
+      - BUILD
+      - RUNTIME
