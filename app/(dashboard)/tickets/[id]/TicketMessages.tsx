@@ -1,5 +1,8 @@
 "use client";
 
+import ReplyStatus from "./ReplyStatus";
+import type { TicketStatus } from "@/types/ticket";
+import MessageBody from "./MessageBody";
 import { useEffect, useState, type FormEvent } from "react";
 import type { MessagesLoadState } from "@/types/message";
 import { subscribeTicketMessages, createTicketMessage } from "@/utils/firebase/messages";
@@ -10,9 +13,10 @@ import { useAuth } from "@/app/components/AuthProvider";
 interface TicketMessagesProps {
   ticketId: string;
   ticketAuthorId: string;
+  onStatusChange: (status: TicketStatus) => void;
 }
 
-export default function TicketMessages({ ticketId, ticketAuthorId }: TicketMessagesProps) {
+export default function TicketMessages({ ticketId, ticketAuthorId, onStatusChange }: TicketMessagesProps) {
   const { user } = useAuth();
   const [loadState, setLoadState] = useState<MessagesLoadState>({
     ticketId: null,
@@ -20,6 +24,7 @@ export default function TicketMessages({ ticketId, ticketAuthorId }: TicketMessa
     error: "",
   });
   const [newMessage, setNewMessage] = useState("");
+  const [status, setStatus] = useState<TicketStatus | "">("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
@@ -53,13 +58,15 @@ export default function TicketMessages({ ticketId, ticketAuthorId }: TicketMessa
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const content = newMessage.trim();
-    if (!content) return;
+    if (submitting || !content) return;
 
     setSubmitting(true);
     setSubmitError("");
 
     try {
-      await createTicketMessage(ticketId, content);
+      await createTicketMessage(ticketId, content, status || undefined);
+      if (status) onStatusChange(status);
+      setStatus("");
       setNewMessage("");
     } catch (err) {
       setSubmitError(getErrorMessage(err));
@@ -110,13 +117,13 @@ export default function TicketMessages({ ticketId, ticketAuthorId }: TicketMessa
                 </div>
 
                 <div
-                  className={`rounded-lg p-4 text-sm max-w-2xl break-words whitespace-pre-wrap shadow-sm ${
+                  className={`rounded-lg p-4 text-sm w-full min-w-0 max-w-2xl break-words whitespace-pre-wrap shadow-sm ${
                     isMe
                       ? "bg-purple-50 text-gray-900 border border-purple-200"
                       : "bg-white text-gray-900 border border-gray-200"
                   }`}
                 >
-                  {message.body}
+                  <MessageBody ticketId={ticketId} message={message} canEdit={isMe} onStatusChange={onStatusChange} />
                 </div>
               </div>
             );
@@ -133,11 +140,14 @@ export default function TicketMessages({ ticketId, ticketAuthorId }: TicketMessa
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type your message or response here..."
             rows={3}
+            maxLength={10000}
+            aria-label="Reply"
             disabled={submitting}
             className="w-full border border-gray-300 rounded p-2.5 text-sm text-gray-800 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary disabled:opacity-50"
             required
           />
 
+          <ReplyStatus value={status} onChange={setStatus} disabled={submitting} />
           {submitError && <div className="error my-2">{submitError}</div>}
 
           <div className="flex justify-end mt-2">

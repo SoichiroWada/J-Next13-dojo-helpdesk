@@ -42,13 +42,13 @@ Do not run a second emulator suite on these ports concurrently.
 Tests are sequential and clear all Auth accounts and Firestore documents before
 each case. Clients/listeners are disposed after each case. Coverage includes real
 email/password signup, emulator email verification codes, refreshed tokens,
-signout/signin, guest/unverified denial, ticket CRUD, all statuses, ownership
+signout/signin, guest/unverified denial, ticket creation/editing and deletion denial, all statuses, ownership
 forgery, immutable fields, field validation, server timestamps, newest-first
-queries, ordered live message delivery across users, and message immutability.
-The current rules deliberately permit all verified users to read, edit, and delete
-any ticket, and read/post messages on any thread. These tests preserve that policy;
-there is no owner-only edit/delete restriction or parent-existence check in the
-current rules. The suite does not change those rules or application behavior.
+queries, ordered live message delivery across users, and author-only message editing with immutable ownership/time.
+The rules permit verified users to read/edit tickets and read/post messages.
+Only the message author can edit its body; creation time and ownership stay
+immutable. Ticket and message deletion are denied for every client. Administrator
+roles and administrator deletion are deferred. There is no parent-existence check.
 
 GitHub Actions installs Java 21 and runs the same integration command without
 Firebase secrets. Emulator debug logs and local `.firebase` state are ignored.
@@ -96,9 +96,9 @@ Safety controls:
 The 10 browser tests cover guest/verified/unverified redirects, login/logout and
 session persistence, invalid credentials and disabled submission, signup/resend
 and emulator email verification with token refresh, required form validation,
-ticket creation/persistence, shared editing/status updates, delete cancellation
-and confirmation by a colleague, message delivery between two open pages without
-reload, and real rule-rejection error recovery. Browser tests use the real app
+ticket creation/persistence, shared editing/status updates, absence of deletion controls for both users, message delivery between two open pages without
+reload, reply editing/cancellation, multiline persistence, other-user edit control hiding,
+and real rule-rejection error recovery. Browser tests use the real app
 and rules. They do not alter business behavior or implement owner-only access.
 
 `tests/firebase-client.test.ts` adds 19 offline guard regression tests alongside

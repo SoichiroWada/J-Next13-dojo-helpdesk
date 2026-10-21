@@ -12,7 +12,7 @@ import { ticketStatuses } from '@/types/ticket';
 const boundary = vi.hoisted(() => ({ getFirebase: vi.fn() }));
 vi.mock('@/utils/firebase/client', () => boundary);
 import { createTicket, deleteTicket, getTicket, getTickets, updateTicket } from '@/utils/firebase/tickets';
-import { createTicketMessage, subscribeTicketMessages } from '@/utils/firebase/messages';
+import { createTicketMessage, subscribeTicketMessages, updateTicketMessage } from '@/utils/firebase/messages';
 
 const form = { title: 'Printer', body: 'Paper jam', status: 'Not started' as const };
 const denied = { code: 'permission-denied' };
@@ -80,7 +80,7 @@ describe('Authentication and verified-email access', () => {
 });
 
 describe('Ticket services and collaborative permissions', () => {
-  it('persists CRUD, server timestamps and immutable ownership across verified collaborators', async () => {
+  it('persists edits, preserves tickets, server timestamps and immutable ownership across verified collaborators', async () => {
     const { owner, ref } = await seed();
     const original = (await getTicket(ref.id))!;
     expect(original).toMatchObject({ ...form, priority: 'low', user_id: owner.auth.currentUser!.uid });
@@ -96,9 +96,8 @@ describe('Ticket services and collaborative permissions', () => {
     expect(edited.created_at.isEqual(original.created_at)).toBe(true);
     expect(edited.updated_at).toBeInstanceOf(Timestamp);
     expect(edited.updated_at!.toMillis()).toBeGreaterThanOrEqual(original.created_at.toMillis());
-    await deleteTicket(ref.id);
-    expect(await getTicket(ref.id)).toBeNull();
-    await expect(updateTicket(ref.id, form)).rejects.toBeDefined();
+    await expect(deleteTicket(ref.id)).rejects.toMatchObject(denied);
+    expect(await getTicket(ref.id)).not.toBeNull();
   });
 
   it.each(ticketStatuses)('accepts supported status %s on create and update', async status => {
@@ -156,6 +155,38 @@ describe('Firestore Security Rules reject invalid direct writes', () => {
 });
 
 describe('Real-time message threads', () => {
+  it('changes ticket status together with message creation and editing, or preserves it when omitted', async () => {
+    const { owner, ref } = await seed();
+    const id = await createTicketMessage(ref.id, 'Investigating', 'In progress');
+    expect((await getTicket(ref.id))?.status).toBe('In progress');
+    await updateTicketMessage(ref.id, id, 'Fixed\nVerified', 'Resolved');
+    expect((await getTicket(ref.id))?.status).toBe('Resolved');
+    expect((await getDoc(doc(owner.db, 'tickets', ref.id, 'messages', id))).data()?.body).toBe('Fixed\nVerified');
+    await createTicketMessage(ref.id, 'Follow-up without changing status');
+    await updateTicketMessage(ref.id, id, 'More details');
+    expect((await getTicket(ref.id))?.status).toBe('Resolved');
+  });
+
+  it('does not change ticket status when a message edit is denied', async () => {
+    const { owner, ref } = await seed();
+    const id = await createTicketMessage(ref.id, 'Original');
+    selectClient(await account());
+    await expect(updateTicketMessage(ref.id, id, 'Forbidden edit', 'Closed')).rejects.toMatchObject(denied);
+    expect((await getTicket(ref.id))?.status).toBe('Not started');
+    expect((await getDoc(doc(owner.db, 'tickets', ref.id, 'messages', id))).data()?.body).toBe('Original');
+  });
+
+  it('does not save a reply when the selected status is rejected', async () => {
+    const { owner, ref } = await seed();
+    const invalid = 'Invalid' as Parameters<typeof createTicketMessage>[2];
+    await expect(createTicketMessage(ref.id, 'Must not be saved', invalid)).rejects.toMatchObject(denied);
+    expect((await getDocs(collection(owner.db, 'tickets', ref.id, 'messages'))).empty).toBe(true);
+    const id = await createTicketMessage(ref.id, 'Original');
+    await expect(updateTicketMessage(ref.id, id, 'Must not be saved', invalid)).rejects.toMatchObject(denied);
+    expect((await getDoc(doc(owner.db, 'tickets', ref.id, 'messages', id))).data()?.body).toBe('Original');
+    expect((await getTicket(ref.id))?.status).toBe('Not started');
+  });
+
   it('delivers ordered messages from multiple verified users and updates the parent timestamp', async () => {
     const { ref } = await seed();
     const reader = await account();
@@ -201,12 +232,29 @@ describe('Real-time message threads', () => {
     await expect(setDoc(doc(ref, 'messages/invalid'), data)).rejects.toMatchObject(denied);
   });
 
-  it('prevents message edits and deletion even by the author and other verified users', async () => {
+  it('allows author edits with newlines while preventing forgery, other-user edits and all deletion', async () => {
     const { owner, ref } = await seed();
     const id = await createTicketMessage(ref.id, 'Permanent reply');
-    for (const services of [owner, await account()]) {
+    await updateTicketMessage(ref.id, id, 'Changed\nSecond line');
+    const stored = await getDoc(doc(owner.db, 'tickets', ref.id, 'messages', id));
+    expect(stored.data()?.body).toBe('Changed\nSecond line');
+    expect(stored.data()?.updated_at).toBeInstanceOf(Timestamp);
+    for (const patch of [
+      { body: '' }, { body: 42 }, { body: 'x'.repeat(10001) },
+      { body: deleteField() }, { user_id: 'other' }, { user_email: 'other@example.test' },
+      { created_at: Timestamp.fromMillis(0) }, { extra: true },
+      { updated_at: Timestamp.fromMillis(0) },
+    ]) {
+      await expect(updateDoc(doc(owner.db, 'tickets', ref.id, 'messages', id), {
+        updated_at: serverTimestamp(), ...patch,
+      })).rejects.toMatchObject(denied);
+    }
+    const other = await account();
+    await expect(updateDoc(doc(other.db, 'tickets', ref.id, 'messages', id), {
+      body: 'Changed', updated_at: serverTimestamp(),
+    })).rejects.toMatchObject(denied);
+    for (const services of [owner, other]) {
       const message = doc(services.db, 'tickets', ref.id, 'messages', id);
-      await expect(updateDoc(message, { body: 'Changed', updated_at: serverTimestamp() })).rejects.toMatchObject(denied);
       await expect(deleteDoc(message)).rejects.toMatchObject(denied);
     }
   });
