@@ -89,11 +89,11 @@ describe('Firebase E2E initialization safety', () => {
 
 describe('Next.js E2E build safety', () => {
   it.each(['phase-production-build', 'phase-production-server'])('refuses emulator mode during %s', async phase => {
-    const { default: config } = await import('../next.config');
+    const { getE2EConfig: config } = await import('../utils/next-config');
     expect(() => config(phase)).toThrow('forbidden in production');
   });
   it('uses separate output only for explicitly enabled development', async () => {
-    const { default: config } = await import('../next.config');
+    const { getE2EConfig: config } = await import('../utils/next-config');
     expect(config('phase-development-server').distDir).toBe('.next-e2e');
     vi.stubEnv('NEXT_PUBLIC_E2E_TEST', undefined);
     expect(config('phase-production-build').distDir).toBeUndefined();

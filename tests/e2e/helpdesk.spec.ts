@@ -163,6 +163,10 @@ test('message rule rejection displays an error and allows retry', async ({ page 
   await expect(page.getByRole('button', { name: 'Send Reply' })).toBeEnabled();
   await input.fill('Valid reply after rejection');
   await page.getByRole('button', { name: 'Send Reply' }).click();
-  await expect(page.getByText('Valid reply after rejection', { exact: true })).toBeVisible();
+  await expect(
+    page.locator('div.rounded-lg').filter({
+      hasText: /^Valid reply after rejection$/,
+    })
+  ).toBeVisible();
   await expect(page.locator('.error')).toHaveCount(0);
 });
