@@ -38,3 +38,8 @@ next-env.d.ts
 # Firebase emulator logs and local state
 *-debug.log
 .firebase/
+
+# Playwright and isolated E2E Next.js output
+/.next-e2e/
+/playwright-report/
+/test-results/
