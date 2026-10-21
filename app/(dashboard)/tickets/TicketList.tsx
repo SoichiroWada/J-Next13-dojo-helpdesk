@@ -37,7 +37,7 @@ export default function TicketList() {
             <h3 className="pr-56">{ticket.title}</h3>
             <small className="block">Created at: {formatTokyoDateTime(ticket.created_at)}</small>
             <small className="block">Created by: {ticket.user_email}</small>
-            <p>{ticket.body.slice(0, 250)}...</p>
+            <p className="whitespace-pre-wrap break-words">{ticket.body.slice(0, 250)}...</p>
             <StatusBadge status={ticket.status} />
           </Link>
         </div>

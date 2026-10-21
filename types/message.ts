@@ -7,6 +7,7 @@ export interface TicketMessage {
   user_id: string;
   user_email: string;
   created_at: Timestamp;
+  updated_at?: Timestamp;
 }
 
 export type TicketMessageFormData = {

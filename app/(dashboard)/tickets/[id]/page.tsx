@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getTicket } from "@/utils/firebase/tickets";
-import DeleteButton from "./DeleteButton";
 import NotFound from "./not-found";
 import Loading from "../../loading";
 import { formatTokyoDateTime } from "@/utils/date";
@@ -58,16 +57,18 @@ export default function TicketDetails() {
         )}
         <small className="block">Created by: {ticket.user_email}</small>
         <StatusBadge status={ticket.status} />
-        <p>{ticket.body}</p>
+        <p className="whitespace-pre-wrap break-words">{ticket.body}</p>
       </div>
       <div className="flex justify-center gap-4 mt-4">
         <Link href={`/tickets/${ticket.id}/edit`}>
           <button className="btn-primary">Edit Ticket</button>
         </Link>
-        <DeleteButton id={ticket.id} />
       </div>
 
-      <TicketMessages ticketId={ticket.id} ticketAuthorId={ticket.user_id} />
+      <TicketMessages key={ticket.id} ticketId={ticket.id} ticketAuthorId={ticket.user_id}
+        onStatusChange={(status) => setResult((current) => ({
+          ...current, ticket: current.ticket ? { ...current.ticket, status } : null,
+        }))} />
     </main>
   );
 }

@@ -100,7 +100,7 @@ test('another verified user edits ticket text and status under the shared policy
   await page.getByRole('button', { name: 'Edit Ticket' }).click();
   await expect(page.getByLabel('Title:')).toHaveValue('Printer paper jam');
   await page.getByLabel('Title:').fill('Printer repaired');
-  await page.getByLabel('Body:').fill('Replaced the damaged paper tray.');
+  await page.getByLabel('Body:').fill('Replaced the damaged paper tray.\nVerified printing.');
   await page.getByLabel('Status:').selectOption('Resolved');
   await page.getByRole('button', { name: 'Update', exact: true }).click();
   await expect(page).toHaveURL(`http://127.0.0.1:3000${path}`);
@@ -109,26 +109,18 @@ test('another verified user edits ticket text and status under the shared policy
   await expect(page.getByText(`Created by: ${users.owner}`, { exact: true })).toBeVisible();
   await expect(page.getByText(/^Updated at:/)).not.toContainText('Just now');
   await page.reload();
-  await expect(page.getByText('Replaced the damaged paper tray.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Replaced the damaged paper tray.\nVerified printing.', { exact: true })).toBeVisible();
 });
 
-test('deletion cancellation preserves a ticket and another verified user can confirm deletion', async ({ page }) => {
+test('tickets have no deletion button for either verified user', async ({ page }) => {
   await login(page);
   const path = await createTicket(page);
-  page.once('dialog', dialog => dialog.dismiss());
-  await page.getByRole('button', { name: 'Delete Ticket' }).click();
-  await expect(page.getByRole('heading', { name: 'Printer paper jam', exact: true })).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole('heading', { name: 'Printer paper jam', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Delete Ticket' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Logout' }).click();
   await login(page, users.colleague);
   await page.goto(path);
-  page.once('dialog', dialog => dialog.accept());
-  await page.getByRole('button', { name: 'Delete Ticket' }).click();
-  await expect(page).toHaveURL('http://127.0.0.1:3000/tickets');
-  await expect(page.getByRole('heading', { name: 'Printer paper jam', exact: true })).toHaveCount(0);
-  await page.goto(path);
-  await expect(page.getByText(/could not find the ticket/i)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Delete Ticket' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Printer paper jam', exact: true })).toBeVisible();
 });
 
 test('messages appear live in a second page without a reload and persist', async ({ page, context }) => {
@@ -141,15 +133,40 @@ test('messages appear live in a second page without a reload and persist', async
   const input = page.getByPlaceholder('Type your message or response here...');
   await expect(page.getByRole('button', { name: 'Send Reply' })).toBeDisabled();
   await input.fill('  First update from the browser  ');
+  await page.getByLabel('Ticket status:').selectOption('In progress');
   await page.getByRole('button', { name: 'Send Reply' }).click();
   await expect(observer.getByText('First update from the browser', { exact: true })).toBeVisible();
   await expect(input).toHaveValue('');
+  await expect(page.getByText('Status: In progress', { exact: true })).toBeVisible();
   await observer.getByPlaceholder('Type your message or response here...').fill('Acknowledged in the second page');
   await observer.getByRole('button', { name: 'Send Reply' }).click();
   await expect(page.getByText('Acknowledged in the second page', { exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Conversation (2)' })).toBeVisible();
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Conversation (2)' })).toBeVisible();
+  const replyCard = page.locator('div.rounded-lg').filter({ hasText: 'First update from the browser' });
+  const displayWidth = (await replyCard.boundingBox())!.width;
+  await page.getByRole('button', { name: 'Edit Reply', exact: true }).first().click();
+  expect((await replyCard.boundingBox())!.width).toBeGreaterThanOrEqual(displayWidth - 1);
+  expect((await page.getByLabel('Edit reply:').boundingBox())!.width).toBeGreaterThan(displayWidth * 0.8);
+  await page.getByLabel('Edit reply:').fill('Discard this');
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await expect(page.getByText('First update from the browser', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Edit Reply', exact: true }).first().click();
+  await page.getByLabel('Edit reply:').fill('Edited first update\nSecond line');
+  await page.getByLabel('Ticket status:').first().selectOption('Resolved');
+  await page.getByRole('button', { name: 'Save Reply', exact: true }).click();
+  await expect(page.getByText('Status: Resolved', { exact: true })).toBeVisible();
+  const edited = observer.getByText('Edited first update\nSecond line', { exact: true });
+  await expect(edited).toBeVisible();
+  expect(await edited.evaluate(element => getComputedStyle(element).whiteSpace)).toBe('pre-wrap');
+  await page.reload();
+  await expect(page.getByText('Edited first update\nSecond line', { exact: true })).toBeVisible();
+  await expect(page.getByText('Status: Resolved', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Logout' }).click();
+  await login(page, users.colleague);
+  await page.goto(path);
+  await expect(page.getByRole('button', { name: 'Edit Reply', exact: true })).toHaveCount(0);
   await observer.close();
 });
 
@@ -157,6 +174,7 @@ test('message rule rejection displays an error and allows retry', async ({ page 
   await login(page);
   await createTicket(page);
   const input = page.getByPlaceholder('Type your message or response here...');
+  await input.evaluate(element => element.removeAttribute('maxlength'));
   await input.fill('x'.repeat(10001));
   await page.getByRole('button', { name: 'Send Reply' }).click();
   await expect(page.locator('.error')).toContainText(/PERMISSION_DENIED|Missing or insufficient permissions/);
@@ -165,7 +183,7 @@ test('message rule rejection displays an error and allows retry', async ({ page 
   await page.getByRole('button', { name: 'Send Reply' }).click();
   await expect(
     page.locator('div.rounded-lg').filter({
-      hasText: /^Valid reply after rejection$/,
+      hasText: /Valid reply after rejection/,
     })
   ).toBeVisible();
   await expect(page.locator('.error')).toHaveCount(0);

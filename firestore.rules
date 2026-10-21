@@ -1,3 +1,6 @@
+// Tickets: title/body/status editable by verified collaborators; ownership and created_at immutable.
+// Messages: body (1..10000 chars), user_id/user_email/created_at immutable;
+// updated_at optional server timestamp. Only the author can edit. No client deletions.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -25,7 +28,7 @@ service cloud.firestore {
         && request.resource.data.user_email == request.auth.token.email
         && request.resource.data.created_at is timestamp
         && request.resource.data.created_at == request.time;
-      allow delete: if verified();
+      allow delete: if false;
       allow update: if verified()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'body', 'status', 'updated_at'])
         && request.resource.data.title is string
@@ -38,8 +41,19 @@ service cloud.firestore {
         && request.resource.data.updated_at == request.time;
 
       match /messages/{messageId} {
+        function validMessage() {
+          return request.resource.data.keys().hasAll(['body', 'user_id', 'user_email', 'created_at'])
+            && request.resource.data.keys().hasOnly(['body', 'user_id', 'user_email', 'created_at', 'updated_at'])
+            && request.resource.data.body is string
+            && request.resource.data.body.size() > 0
+            && request.resource.data.body.size() <= 10000
+            && request.resource.data.user_id is string
+            && request.resource.data.user_email is string
+            && request.resource.data.created_at is timestamp;
+        }
         allow read: if verified();
         allow create: if verified()
+          && validMessage()
           && request.resource.data.keys().hasAll(['body', 'user_id', 'user_email', 'created_at'])
           && request.resource.data.keys().hasOnly(['body', 'user_id', 'user_email', 'created_at'])
           && request.resource.data.body is string
@@ -49,7 +63,13 @@ service cloud.firestore {
           && request.resource.data.user_email == request.auth.token.email
           && request.resource.data.created_at is timestamp
           && request.resource.data.created_at == request.time;
-        allow update, delete: if false;
+        allow update: if verified()
+          && resource.data.user_id == request.auth.uid
+          && validMessage()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['body', 'updated_at'])
+          && request.resource.data.updated_at is timestamp
+          && request.resource.data.updated_at == request.time;
+        allow delete: if false;
       }
     }
   }
